@@ -47,8 +47,8 @@
 
 1. **نسخ المشروع:**
    ```bash
-   git clone [https://github.com/mohammedalhady/your-repo-name.git](https://github.com/mohammedalhady/your-repo-name.git)
-   cd your-repo-name
+   git clone [https://github.com/Mohammed-Alhady/backend_presentation.git]
+   cd backend_presentation
    ```
 
 بدء المحاكاة:
