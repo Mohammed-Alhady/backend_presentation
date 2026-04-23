@@ -1,0 +1,53 @@
+# ==================================================================================
+# Project: Cross-Platform Performance Benchmarking (ASP.NET Core vs Laravel)
+# Author: Mohammed Alhady
+# Description: This configuration orchestrates a controlled environment to compare
+#              the performance of vanilla and optimized versions of .NET and Laravel
+#              under strict resource constraints (1 CPU, 1GB RAM).
+# Usage: Run 'docker-compose up -d' to deploy all benchmark targets.
+# ==================================================================================
+
+services:
+  # 1. Laravel vanilla baseline
+  laravel_vanilla:
+    image: mohammedalhady/se-laravel_vanilla:latest
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+  # 2. (Octane) - High-performance Laravel with Swoole/RoadRunner
+  laravel_beast:
+    image: mohammedalhady/se-laravel_beast:latest
+    ports:
+      - "8001:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+  # 3.  ASP.NET Core baseline
+  dotnet_vanilla:
+    image: mohammedalhady/se-dotnet_vanilla:latest
+    ports:
+      - "5000:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+  # 4. (Native AOT) - ASP.NET Core with Ahead-of-Time compilation
+  dotnet_beast:
+    image: mohammedalhady/se-dotnet_beast:latest
+    ports:
+      - "5001:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M

@@ -1,0 +1,19 @@
+FROM dunglas/frankenphp:php8.2
+
+RUN install-php-extensions pcntl zip pdo_sqlite pdo_mysql bcmath
+
+WORKDIR /app
+COPY . .
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+
+RUN cp .env.example .env || touch .env
+RUN php artisan key:generate
+
+RUN php artisan octane:install --server=frankenphp
+
+EXPOSE 8000
+
+CMD ["php", "artisan", "octane:start", "--server=frankenphp", "--host=0.0.0.0", "--port=8000"]

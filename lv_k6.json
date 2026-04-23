@@ -1,0 +1,141 @@
+{
+    "metrics": {
+        "checks": {
+            "passes": 684,
+            "fails": 8487,
+            "value": 0.0745829244357213
+        },
+        "http_req_duration": {
+            "med": 59999.76685,
+            "max": 60053.9106,
+            "p(90)": 60005.324830000005,
+            "p(95)": 60012.7224,
+            "avg": 54123.26497378767,
+            "min": 1005.0873
+        },
+        "vus_max": {
+            "max": 10000,
+            "value": 10000,
+            "min": 3538
+        },
+        "iterations": {
+            "count": 3057,
+            "rate": 38.202705876787604
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_sending": {
+            "min": 0,
+            "med": 0,
+            "max": 30.185,
+            "p(90)": 0.5485,
+            "p(95)": 1.0268749999999998,
+            "avg": 0.33055709023941093
+        },
+        "http_req_waiting": {
+            "med": 59999.572100000005,
+            "max": 60053.9106,
+            "p(90)": 60004.69482,
+            "p(95)": 60012.7224,
+            "avg": 54122.29390104363,
+            "min": 973.8611
+        },
+        "data_sent": {
+            "count": 733740,
+            "rate": 9169.399218198932
+        },
+        "http_req_blocked": {
+            "med": 0.703,
+            "max": 77.3771,
+            "p(90)": 2.3651100000000005,
+            "p(95)": 4.418384999999998,
+            "avg": 1.4606995089011647,
+            "min": 0
+        },
+        "data_received": {
+            "count": 59484680,
+            "rate": 743367.9209076971
+        },
+        "http_req_connecting": {
+            "max": 76.8613,
+            "p(90)": 2.022040000000001,
+            "p(95)": 3.5372949999999923,
+            "avg": 1.264707673419276,
+            "min": 0,
+            "med": 0.5609500000000001
+        },
+        "http_req_failed": {
+            "passes": 2574,
+            "fails": 684,
+            "value": 0.7900552486187845
+        },
+        "vus": {
+            "value": 15,
+            "min": 0,
+            "max": 10000
+        },
+        "http_reqs": {
+            "count": 3258,
+            "rate": 40.71456190597776
+        },
+        "http_req_receiving": {
+            "avg": 0.6405156537753229,
+            "min": 0,
+            "med": 0,
+            "max": 134.6936,
+            "p(90)": 1.6626200000000007,
+            "p(95)": 3.7452199999999976
+        },
+        "iteration_duration": {
+            "max": 61011.2589,
+            "p(90)": 60337.49368,
+            "p(95)": 60820.15302,
+            "avg": 53825.84699270531,
+            "min": 1013.1673,
+            "med": 60002.7499
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 32001.72959108186,
+            "min": 1005.0873,
+            "med": 33400.617849999995,
+            "max": 59955.1635,
+            "p(90)": 55167.62645,
+            "p(95)": 57547.13347
+        }
+    },
+    "root_group": {
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "status is 200 (Success)": {
+                    "fails": 2373,
+                    "name": "status is 200 (Success)",
+                    "path": "::status is 200 (Success)",
+                    "id": "2f3f64a40f85024b94d8a05f138c71ea",
+                    "passes": 684
+                },
+                "status is 500 (Server Crash)": {
+                    "fails": 3057,
+                    "name": "status is 500 (Server Crash)",
+                    "path": "::status is 500 (Server Crash)",
+                    "id": "d5dabfa38475ae2b58437eb971115790",
+                    "passes": 0
+                },
+                "status is 502/504 (Timeout)": {
+                    "name": "status is 502/504 (Timeout)",
+                    "path": "::status is 502/504 (Timeout)",
+                    "id": "de1e1b0ff0a87cbf6c5b022fb06346bc",
+                    "passes": 0,
+                    "fails": 3057
+                }
+            },
+        "name": ""
+    }
+}

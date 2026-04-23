@@ -1,0 +1,15 @@
+﻿# المرحلة الأولى: بناء النسخة الخام (نحتاج أدوات بناء إضافية للـ AOT)
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# تثبيت أدوات لينكس اللازمة للترجمة لـ Machine Code
+RUN apt-get update && apt-get install -y clang zlib1g-dev
+WORKDIR /src
+COPY . .
+# ترجمة الكود إلى ملف تنفيذي واحد (Binary) لا يحتاج لبيئة تشغيل دوت نت!
+RUN dotnet publish aspnet-core.csproj -c Release -r linux-x64 -p:PublishAot=true -o /app/publish
+
+# المرحلة الثانية: نسخة نهائية صغيرة جداً (تبدأ من صفر تقريباً)
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0
+WORKDIR /app
+COPY --from=build /app/publish .
+EXPOSE 8080
+ENTRYPOINT ["./aspnet-core"]

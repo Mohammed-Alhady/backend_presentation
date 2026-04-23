@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة قياس الأداء الاحترافية</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #1e1e2f;
+        color: #ffffff;
+        margin: 0;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .header h1 {
+        color: #00d2ff;
+        margin-bottom: 5px;
+      }
+      .header p {
+        color: #a0a0b0;
+        margin-top: 0;
+      }
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+      .control-group {
+        background-color: #27293d;
+        padding: 15px 20px;
+        border-radius: 10px;
+        border: 1px solid #3a3b55;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .checkbox-container {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      .checkbox-container label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background-color: #1e1e2f;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #00d2ff;
+        transition: 0.3s;
+      }
+      .checkbox-container label:hover {
+        background-color: #3a3b55;
+      }
+      select {
+        padding: 8px 15px;
+        font-size: 15px;
+        background-color: #1e1e2f;
+        color: white;
+        border: 2px solid #00d2ff;
+        border-radius: 5px;
+        cursor: pointer;
+        outline: none;
+      }
+      .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .card {
+        background-color: #27293d;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 600px;
+      }
+      .card h2 {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #e1e1e1;
+      }
+      .card p.desc {
+        text-align: center;
+        font-size: 0.85rem;
+        color: #a0a0b0;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      canvas {
+        width: 100% !important;
+        height: 300px !important;
+      }
+      .status-bar {
+        background-color: #1dd1a1;
+        color: #1e1e2f;
+        padding: 10px;
+        border-radius: 8px;
+        max-width: 1400px;
+        margin: 10px auto 20px auto;
+        text-align: center;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>📊 لوحة قياس الأداء الاحترافية</h1>
+      <p>بيانات تفاعلية حية مستخرجة من حاويات Docker وأداة K6</p>
+    </div>
+
+    <div class="status-bar">
+      ✅ تم تحديث وقراءة البيانات بنجاح من آخر اختبار أداء.
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label><strong>🖥️ الأنظمة المعروضة: </strong></label>
+        <div class="checkbox-container" id="systemSelectorContainer"></div>
+      </div>
+
+      <div class="control-group">
+        <label for="metricSelector"
+          ><strong>📈 المقياس المعروض: </strong></label
+        >
+        <select id="metricSelector" onchange="filterMetricCards()">
+          <option value="all">عرض جميع المقاييس</option>
+          <option value="ram">استهلاك الذاكرة (RAM)</option>
+          <option value="rps">الطلبات في الثانية (RPS)</option>
+          <option value="time">زمن الاستجابة</option>
+          <option value="total">إجمالي الطلبات المنجزة</option>
+          <option value="efficiency">مؤشر الكفاءة</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="card" id="card-ram">
+        <h2>استهلاك الذاكرة (RAM) 📉</h2>
+        <p class="desc" style="color: #ff6b6b">(الأقل هو الأفضل)</p>
+        <canvas id="ramChart"></canvas>
+      </div>
+
+      <div class="card" id="card-rps">
+        <h2>الطلبات الناجحة في الثانية (RPS) 🚀</h2>
+        <p class="desc" style="color: #1dd1a1">(الأعلى هو الأفضل)</p>
+        <canvas id="rpsChart"></canvas>
+      </div>
+
+      <div class="card" id="card-time">
+        <h2>متوسط زمن الاستجابة ⚡</h2>
+        <p class="desc" style="color: #ff6b6b">(الأقل هو الأفضل)</p>
+        <canvas id="timeChart"></canvas>
+      </div>
+
+      <div class="card" id="card-total">
+        <h2>إجمالي الطلبات الناجحة 🎯</h2>
+        <p class="desc" style="color: #1dd1a1">
+          (حجم البيانات المعالجة خلال مدة الاختبار)
+        </p>
+        <canvas id="totalChart"></canvas>
+      </div>
+
+      <div class="card" id="card-efficiency" style="max-width: 1220px">
+        <h2>مؤشر الكفاءة الشاملة 💎</h2>
+        <p class="desc" style="color: #00d2ff">
+          المعادلة: (الطلبات/ث × 1000) ÷ (الرام × زمن الاستجابة). الرقم الأعلى
+          يمثل كفاءة معمارية أفضل!
+        </p>
+        <canvas id="efficiencyChart"></canvas>
+      </div>
+    </div>
+
+    <script src="data.js"></script>
+
+    <script>
+      Chart.register(ChartDataLabels);
+      let chartInstances = {};
+
+      function generateColors(count) {
+        const baseHues = [359, 207, 29, 180, 280, 120, 60, 300];
+        const bgColors = [];
+        const borderColors = [];
+        for (let i = 0; i < count; i++) {
+          const hue = baseHues[i % baseHues.length];
+          bgColors.push(`hsla(${hue}, 70%, 60%, 0.7)`);
+          borderColors.push(`hsl(${hue}, 70%, 50%)`);
+        }
+        return { bgColors, borderColors };
+      }
+
+      // توليد الـ Checkboxes بناءً على أسماء الأنظمة الموجودة في البيانات
+      function populateSystemCheckboxes() {
+        if (typeof myRealData === "undefined") return;
+        const container = document.getElementById("systemSelectorContainer");
+
+        myRealData.labels.forEach((label) => {
+          const labelEl = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = label;
+          checkbox.className = "system-checkbox";
+          checkbox.checked = true; // تفعيل الكل افتراضياً
+          checkbox.onchange = renderAllCharts; // إعادة الرسم عند التغيير
+
+          labelEl.appendChild(checkbox);
+          labelEl.appendChild(document.createTextNode(label));
+          container.appendChild(labelEl);
+        });
+      }
+
+      function renderChart(
+        ctxId,
+        label,
+        labelsArray,
+        dataArray,
+        formatFn = (val) => val,
+      ) {
+        const ctx = document.getElementById(ctxId).getContext("2d");
+
+        if (chartInstances[ctxId]) {
+          chartInstances[ctxId].destroy();
+        }
+
+        const colors = generateColors(labelsArray.length);
+
+        chartInstances[ctxId] = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labelsArray,
+            datasets: [
+              {
+                label: label,
+                data: dataArray,
+                backgroundColor: colors.bgColors,
+                borderColor: colors.borderColors,
+                borderWidth: 2,
+                borderRadius: 5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 30 } },
+            plugins: {
+              legend: { display: false },
+              datalabels: {
+                anchor: "end",
+                align: "top",
+                color: "#ffffff",
+                font: { weight: "bold", size: 14 },
+                formatter: formatFn,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+                ticks: { color: "#a0a0b0" },
+              },
+              x: {
+                ticks: {
+                  color: "#e1e1e1",
+                  font: { size: 14, family: "Tahoma" },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function renderAllCharts() {
+        if (typeof myRealData === "undefined") {
+          console.error("data.js not found!");
+          return;
+        }
+
+        // جلب الأنظمة المحددة فقط من الـ Checkboxes
+        const checkedBoxes = document.querySelectorAll(
+          ".system-checkbox:checked",
+        );
+        const selectedSystems = Array.from(checkedBoxes).map((cb) => cb.value);
+
+        let filteredLabels = [];
+        let filteredRam = [];
+        let filteredRps = [];
+        let filteredTime = [];
+        let filteredTotal = [];
+        let efficiencyData = [];
+
+        myRealData.labels.forEach((sysLabel, index) => {
+          if (selectedSystems.includes(sysLabel)) {
+            filteredLabels.push(sysLabel);
+
+            const ram = myRealData.ramUsage[index];
+            const rps = myRealData.requestsPerSecond[index];
+            const time = myRealData.responseTime[index];
+            const total = myRealData.totalRequests
+              ? myRealData.totalRequests[index]
+              : 0;
+
+            filteredRam.push(ram);
+            filteredRps.push(rps);
+            filteredTime.push(time);
+            filteredTotal.push(total);
+
+            // حساب مؤشر الكفاءة
+            const safeRam = ram > 0 ? ram : 1;
+            const safeTime = time > 0 ? time : 1;
+            const efficiencyScore = (
+              (rps * 1000) /
+              (safeRam * safeTime)
+            ).toFixed(2);
+            efficiencyData.push(efficiencyScore);
+          }
+        });
+
+        // تنسيقات الأرقام
+        const formatDefault = (value) => value;
+        const formatRam = (value) => value + " MB";
+        const formatRps = (value) => value + " req/s";
+        const formatTime = (value) => value + " ms";
+        const formatTotal = (value) => {
+          if (value >= 1000) return (value / 1000).toFixed(1) + "k / 55s";
+          return value + " / 55s";
+        };
+
+        renderChart(
+          "ramChart",
+          "الذاكرة (MB)",
+          filteredLabels,
+          filteredRam,
+          formatRam,
+        );
+        renderChart(
+          "rpsChart",
+          "الطلبات/ثانية",
+          filteredLabels,
+          filteredRps,
+          formatRps,
+        );
+        renderChart(
+          "timeChart",
+          "زمن الاستجابة (ms)",
+          filteredLabels,
+          filteredTime,
+          formatTime,
+        );
+        renderChart(
+          "totalChart",
+          "إجمالي الطلبات",
+          filteredLabels,
+          filteredTotal,
+          formatTotal,
+        );
+        renderChart(
+          "efficiencyChart",
+          "نقاط الكفاءة",
+          filteredLabels,
+          efficiencyData,
+          formatDefault,
+        );
+      }
+
+      function filterMetricCards() {
+        const val = document.getElementById("metricSelector").value;
+        document.getElementById("card-ram").style.display =
+          val === "all" || val === "ram" ? "block" : "none";
+        document.getElementById("card-rps").style.display =
+          val === "all" || val === "rps" ? "block" : "none";
+        document.getElementById("card-time").style.display =
+          val === "all" || val === "time" ? "block" : "none";
+        document.getElementById("card-total").style.display =
+          val === "all" || val === "total" ? "block" : "none";
+        document.getElementById("card-efficiency").style.display =
+          val === "all" || val === "efficiency" ? "block" : "none";
+      }
+
+      window.onload = function () {
+        populateSystemCheckboxes();
+        renderAllCharts();
+      };
+    </script>
+  </body>
+</html>
